@@ -19,7 +19,7 @@ from .helpers import *
 
 JSON = False
 CSV = False
-CUSTOM_OUT=True
+CUSTOM_OUT = True
 SKIP = False
 
 try:
@@ -283,7 +283,7 @@ class Template(object):
 
 
     def setup_template_from_data(self, template, data):
-        doc = yaml.load(data)
+        doc = yaml.safe_load(data)
 
         YAML_CACHE[template] = doc
         return self.setup_template_from_yaml_doc(template, doc)
