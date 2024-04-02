@@ -59,7 +59,7 @@ def print_record(process, r, csv_writer=None):
             if field not in r:
                 continue
 
-            if r[field] is not None and r[field] is not "":
+            if r[field] is not None and r[field] != "":
                 pr[field] = r[field]
 
         clean_json(pr)
