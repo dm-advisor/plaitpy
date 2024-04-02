@@ -3,6 +3,9 @@
 
 */private/*
 scripts/gen_data.sh
+build/
+plaitpy.egg-info/
+.idea
 tmp/
 dist
 .git*
