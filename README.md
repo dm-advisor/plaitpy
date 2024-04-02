@@ -1,6 +1,18 @@
 ## plait.py
 
-plait.py is a program for generating fake data from composable yaml templates.
+plait.py is a program for generating fake data from composable yaml templates. 
+To execute the program change directory to bin and issue the following command:
+
+./plait.py template-full-path-and-name options
+
+Options are:
+* --dir parent directory for templates and data files
+* --num number of records to generate
+* --csv encode records as CSV
+* --json encode records as JSON
+
+Example:
+ ./plait.py ../templates/undergrad/applicant.yaml --csv --num=10
 
 The idea behind plait.py is that it should be easy to model fake data that
 has an interesting shape. Currently, many fake data generators model their data as a

@@ -3,9 +3,15 @@ define:
   min_age: 10
   minor_age: 13
   working_age: 18
+  days_in_year: 365.2425
+
+imports:
+  - datetime
+  - timedelta
 
 fields:
   age:
+    #  return a random floating point number with gaussian distribution (mean=25 and standard deviation=5)
     random: gauss(25, 5)
     # minimum age is $min_age
     finalize: max($min_age, value)
@@ -15,13 +21,41 @@ fields:
       - value: M
       - value: F
 
+  dob:
+    lambda: datetime.date.today() - datetime.timedelta(days=this.age * ${days_in_year})
+
+  phone_number: "#{phone_number.formats}"
+  demographic: "#{demographic.race}"
   name: "#{name.name}"
   job:
     value: "#{job.title}"
     onlyif: this.age > $working_age
 
-  address:
-    template: address/usa.yaml
+  #address:
+  #  template: address/usa.yaml
+  country: "usa"
+  street: "#{address.street_address}"
+  address_line2:
+    mixture:
+      - value: ''
+      - "#{address.secondary_address}"
+  _city:
+    csv: data/cities.csv
+    column: 1
+    weight: 3
+  city:
+    lambda: this._city.title()
+  zipcode:
+    csv: data/free-zipcode-database-Primary.csv
+    column: 0
+    index: 2
+    lookup: this._city.upper()
+    depends: _city
+  state:
+    csv: data/free-zipcode-database-Primary.csv
+    column: 3
+    depends: zipcode
+
   phone: # add a phone if the person is older than the minor age
     template: device/phone.yaml
     onlyif: this.age > ${minor_age}
