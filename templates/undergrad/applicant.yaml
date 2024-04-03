@@ -21,8 +21,31 @@ fields:
       - value: M
       - value: F
 
+  # This hidden field derives the percentage of foreign vs. domestic students
+  _origin:
+    mixture:
+      - value: "Foreign"
+        weight: 4
+      - value: "Domestic"
+        weight: 6
   dob:
     lambda: datetime.date.today() - datetime.timedelta(days=this.age * ${days_in_year})
+
+  birth_country:
+    switch:
+      - onlyif: this._origin == "Foreign"
+        csv: data/worldcities.csv
+        column: 3
+      - onlyif: this._origin == "Domestic"
+        value: "United States"
+
+  birth_city:
+    csv: data/worldcities.csv
+    column: 0
+    index: 3
+    lookup: this.birth_country
+    # TODO: why isn't this "depends" working? It generates United States records with foreign cities!
+    depends: birth_country
 
   phone_number: "#{phone_number.formats}"
   demographic: "#{demographic.race}"
@@ -38,7 +61,9 @@ fields:
   address_line2:
     mixture:
       - value: ''
-      - "#{address.secondary_address}"
+        weight: 80
+      - value: "#{address.secondary_address}"
+        weight: 20
   _city:
     csv: data/cities.csv
     column: 1
