@@ -44,7 +44,6 @@ fields:
     column: 0
     index: 3
     lookup: this.birth_country
-    # TODO: why isn't this "depends" working? It generates United States records with foreign cities!
     depends: birth_country
 
   phone_number: "#{phone_number.formats}"
