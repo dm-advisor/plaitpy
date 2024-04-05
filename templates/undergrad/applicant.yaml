@@ -1,35 +1,65 @@
 # a person generator
 define:
-  min_age: 10
+  min_age: 15
   minor_age: 13
   working_age: 18
   days_in_year: 365.2425
+  year_applied: 2023
+  term_applied: 2
 
 imports:
   - datetime
   - timedelta
 
 fields:
-  age:
+  year:
+    value: ${year_applied}
+
+  term:
+    value: ${term_applied}
+
+  application_level:
+    mixture:
+      - value: F
+        weight: 9
+      - value: T
+        weight: 4
+      - value: O
+        weight: 1
+
+  _age:
     #  return a random floating point number with gaussian distribution (mean=25 and standard deviation=5)
     random: gauss(25, 5)
     # minimum age is $min_age
     finalize: max($min_age, value)
 
-  gender:
+  first_name: "#{name.first_name}"
+  middle_name:
     mixture:
-      - value: M
-      - value: F
-
-  # This hidden field derives the percentage of foreign vs. domestic students
-  _origin:
-    mixture:
-      - value: "Foreign"
+      - value: "#{name.first_name}"
         weight: 4
-      - value: "Domestic"
+      - value: ''
         weight: 6
+  last_name: "#{name.last_name}"
+  suffix:
+    mixture:
+      - value: JR
+        weight: 5
+      - value: SR
+        weight: 2
+      - value: II
+        weight: 1
+      - value: III
+        weight: 1
+      - value: IV
+        weight: 1
+      - value: ''
+        weight: 9
+  # To avoid having the same dob for all applicants with the same age, we subtract a random number of days for each applicant
+  _random_days:
+    random: gauss(15, 5)
   dob:
-    lambda: datetime.date.today() - datetime.timedelta(days=this.age * ${days_in_year})
+    lambda: str(datetime.date.today() - (datetime.timedelta(days=this._age * ${days_in_year}) - datetime.timedelta(days=this._random_days)))
 
   birth_country:
     switch:
@@ -46,17 +76,13 @@ fields:
     lookup: this.birth_country
     depends: birth_country
 
-  phone_number: "#{phone_number.formats}"
-  demographic: "#{demographic.race}"
-  name: "#{name.name}"
-  job:
-    value: "#{job.title}"
-    onlyif: this.age > $working_age
-
   #address:
   #  template: address/usa.yaml
-  country: "usa"
-  street: "#{address.street_address}"
+
+  # TODO: need to have foreign country addresses
+  #Home Address
+  country: "United States"
+  address_line1: "#{address.street_address}"
   address_line2:
     mixture:
       - value: ''
@@ -69,35 +95,76 @@ fields:
     weight: 3
   city:
     lambda: this._city.title()
+  state:
+    csv: data/free-zipcode-database-Primary.csv
+    column: 3
+    depends: zipcode
   zipcode:
     csv: data/free-zipcode-database-Primary.csv
     column: 0
     index: 2
     lookup: this._city.upper()
     depends: _city
-  state:
-    csv: data/free-zipcode-database-Primary.csv
+  send_mail:
+    mixture:
+      - value: Y
+        weight: 9
+      - value: N
+        weight: 1
+  phone_number: "#{phone_number.formats}"
+  share_contact_info:
+    mixture:
+      - value: Y
+        weight: 8
+      - value: N
+        weight: 2
+
+  citizenship_country:
+    csv: data/worldcities.csv
     column: 3
-    depends: zipcode
+    index: 3
+    lookup: this.birth_country
+    depends: birth_country
 
-  phone: # add a phone if the person is older than the minor age
-    template: device/phone.yaml
-    onlyif: this.age > ${minor_age}
+  gender:
+    mixture:
+      - value: M
+      - value: F
 
-  # we model our height as a gaussian that varies based on
-  # age and gender
-  height:
-    lambda: this._base_height * this._age_factor
-  _base_height:
-    switch:
-      - onlyif: this.gender == "F"
-        random: gauss(60, 5)
-      - onlyif: this.gender == "M"
-        random: gauss(70, 5)
+  # This hidden field derives the percentage of foreign vs. domestic students
+  _origin:
+    mixture:
+      - value: "Foreign"
+        weight: 4
+      - value: "Domestic"
+        weight: 6
 
-  _age_factor:
-    switch:
-      - onlyif: this.age < 15
-        lambda: 1 - (20 - (this.age + 5)) / 20
-      - default:
-        value: 1
+
+  demographic: "#{demographic.race}"
+
+
+#  job:
+#    value: "#{job.title}"
+#    onlyif: this._age > $working_age
+#
+#  phone: # add a phone if the person is older than the minor age
+#    template: device/phone.yaml
+#    onlyif: this._age > ${minor_age}
+#
+#  # we model our height as a gaussian that varies based on
+#  # age and gender
+#  height:
+#    lambda: this._base_height * this._age_factor
+#  _base_height:
+#    switch:
+#      - onlyif: this.gender == "F"
+#        random: gauss(60, 5)
+#      - onlyif: this.gender == "M"
+#        random: gauss(70, 5)
+#
+#  _age_factor:
+#    switch:
+#      - onlyif: this._age < 15
+#        lambda: 1 - (20 - (this._age + 5)) / 20
+#      - default:
+#        value: 1
