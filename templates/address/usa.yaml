@@ -2,7 +2,7 @@ fields:
   country: "usa"
   street: "#{address.street_address}"
   _city:
-    csv: data/cities.csv
+    csv: data/us_cities.csv
     column: 1
     weight: 3
   city:
