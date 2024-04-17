@@ -1,0 +1,8 @@
+fields:
+  ethnicity: "#{demographic.race}"
+  hispanic_latino:
+    mixture:
+      - value: Y
+        weight: 1
+      - value: N
+        weight: 9

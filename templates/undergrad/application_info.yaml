@@ -1,0 +1,40 @@
+define:
+  year_applied: 2023
+  term_applied: 2
+
+fields:
+  applicant_id:
+    random: randint(30000,250000)
+  year:
+    value: ${year_applied}
+  term:
+    value: ${term_applied}
+  application_level:
+    mixture:
+      - value: F
+        weight: 10
+      - value: T
+        weight: 4
+      - value: O
+        weight: 0.5
+  campus_applied:
+    mixture:
+      - value: Berkeley
+        weight: 10
+      - value: Davis
+        weight: 9
+      - value: Merced
+        weight: 1
+      - value: Santa Cruz
+        weight: 3
+      - value: Santa Barbara
+        weight: 4
+      - value: Los Angeles
+        weight: 10
+      - value: Riverside
+        weight: 2
+      - value: Irvine
+        weight: 5
+      - value: San Diego
+        weight: 3
+

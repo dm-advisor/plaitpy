@@ -1,0 +1,59 @@
+fields:
+#  language:
+#  first_language:
+  married_partnership:
+    mixture:
+      - value: Y
+        weight: 1
+      - value: N
+        weight: 9
+  military_dependent:
+    mixture:
+      - value: Y
+        weight: 1
+      - value: N
+        weight: 9
+  earned_income:
+    random: randint(30000,250000)
+#  num_supported_by_income:
+#  parent_education_level:
+#  ca_resident_tuition:
+#    mixture:
+#      - value: Y
+#        weight: 5
+#      - value: N
+#        weight: 3
+
+#  hs_name:
+#  hs_city:
+#  hs_type:
+#  hs_start_date:
+#  hs_end_date:
+#  diploma_received_month:
+#  diploma_received_year:
+  diploma:
+    mixture:
+      - value: "None"
+      - value: "High\/Secondary School Diploma"
+      - value: "IB Diploma"
+      - value: "GED"
+      - value: "Other"
+#  hs_language:
+  international_experience:
+    mixture:
+      - value: Y
+        weight: 5
+      - value: N
+        weight: 3
+#  ap_exams:
+#  ib_exams:
+  eng_lang_proficiency:
+    mixture:
+      - value: "TOFEL iBT"
+      - value: "IELTS-Academic"
+      - value: "Duolingo English Test"
+      - value: "ACT English Language Arts"
+      - value: "SAT Writing & Language"
+  test_taken_month:
+    random: randint(1, 12)
+#  test_taken_year:
