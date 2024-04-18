@@ -1,4 +1,6 @@
 # an applicant generator
+# To generate 10 sample records, change directory to bin and then execute:
+#      plait.py ../templates/undergrad/applicant.yaml --csv --num 10
 mixin:
   - application_info.yaml
   - personal_info.yaml

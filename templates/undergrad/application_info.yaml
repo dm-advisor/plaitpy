@@ -4,7 +4,7 @@ define:
 
 fields:
   applicant_id:
-    random: randint(30000,250000)
+    random: randint(12500000,92500000)
   year:
     value: ${year_applied}
   term:
