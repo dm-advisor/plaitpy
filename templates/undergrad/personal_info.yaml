@@ -27,11 +27,12 @@ fields:
   gender_desc:
     switch:
       - onlyif: this.gender_at_birth == 'F'
+        # random.choices returns a list even with k=1. To get one value from the list we wrap it in random.choice().
         lambda: random.choice(random.choices(['Woman', 'Transgender Woman / Trans Woman', 'Nonbinary', 
-          'Different Identity'], weights=(10, 0.9, 0.1, 0.1), k=5))
+          'Different Identity'], weights=(10, 0.9, 0.1, 0.1), k=1))
       - default:
         lambda: random.choice(random.choices(['Man', 'Transgender Man / Trans Man', 'Nonbinary', 
-          'Different Identity'], weights=(10, 0.9, 0.1, 0.1), k=5))
+          'Different Identity'], weights=(10, 0.9, 0.1, 0.1), k=1))
   gender_id:
     mixture:
       - value: 'Heterosexual or straight'
@@ -169,7 +170,7 @@ fields:
         column: 0
         index: 3
         lookup: this.birth_country
-        depends: birth_country
+        # depends: birth_country
   address_state:
     switch:
       - onlyif: this.birth_country == "United States"

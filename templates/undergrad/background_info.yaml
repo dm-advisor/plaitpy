@@ -46,7 +46,24 @@ fields:
       - value: N
         weight: 3
 #  ap_exams:
-#  ib_exams:
+  # Multiples allowed
+  ib_exams:
+    mixture:
+      - value: 'Languages A1'
+      - value: 'Second Languages A2, B'
+      - value: 'Individuals and Society'
+      - value: 'Experimental Sciences'
+      - value: 'Mathematical and Computer Science'
+      - value: 'Arts'
+  ib_exam_month:
+    random: randint(1, 12)
+  ib_exam_leve:
+    mixture:
+      - value: HL
+      - value: SL
+  # ib_exam_year:
+  # ib_exam_score:
+  # Multiples allowed
   eng_lang_proficiency:
     mixture:
       - value: "TOFEL iBT"
@@ -54,6 +71,16 @@ fields:
       - value: "Duolingo English Test"
       - value: "ACT English Language Arts"
       - value: "SAT Writing & Language"
-  test_taken_month:
+  test_month:
     random: randint(1, 12)
-#  test_taken_year:
+  # test_year:
+  # test_score:
+  activity_award:
+    mixture:
+      - value: 'Award or honor'
+      - value: 'Educational preparation program'
+      - value: 'Extracurricular activity'
+      - value: 'Other coursework'
+      - value: 'Volunteer/Community service'
+      - value: 'Work experience'
+
