@@ -193,6 +193,41 @@ fields:
         index: 0
         lookup: this.birth_country
         depends: birth_country
+  hs_attended:
+    mixture:
+      - value: "In California"
+      - value: "Outside California (in the U.S.)"
+      - value: "Outside the U.S."
+
+    hs_name: "#{company.name}"
+  hs_city:
+    switch:
+      - onlyif: this.hs_attended == "In California"
+        value: this.birth_city
+      - default:
+        value: ''
+#  hs_start_month:
+#    lambda: random.choice(random.choices(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+#      'October', 'November', 'December'], weights=(1, 1, 1, 1, 9, 10, 4, 5, 4, 1, 1, 1), k=1))
+  hs_start_date:
+    lambda: str(datetime.datetime.strptime(this.dob, '%Y-%m-%d').date() + datetime.timedelta(days=(${days_in_year} * 
+      random.uniform(12.1,15.9))))
+  hs_end_date:
+    lambda: str(datetime.datetime.strptime(this.hs_start_date, '%Y-%m-%d').date() + 
+      datetime.timedelta(days=(${days_in_year} * random.uniform(2.9,3.9))))  # random.uniform(1.5, 1.9)
+  where_attended_hs:
+    switch:
+      - onlyif: this.hs_attended == "In California"
+        value: 'California'
+      - onlyif: this.hs_attended == "Outside California (in the U.S.)"
+        csv: data/free-zipcode-database-Primary.csv
+        column: 3
+      - default:
+        csv: data/foreign_addresses.csv
+        column: 3
+        index: 0
+        lookup: this.birth_country
+        depends: birth_country
   send_mail:
     mixture:
       - value: Y
@@ -212,8 +247,10 @@ fields:
     index: 3
     lookup: this.birth_country
     depends: birth_country
-  lived_in_ca_since:
-    lambda: str(random.randint(1, 12)) + '-' + str(random.randint(2000, 2014))
+  year_in_ca_since:
+    random: randint(2000, this.current_year)
+  month_year_in_ca_since:
+    lambda: str(random.randint(1, 12)) + '-' + str(this.year_in_ca_since)
   citizenship_status:
     switch:
       - onlyif: this.citizenship_country == "United States"
@@ -228,8 +265,16 @@ fields:
             weight: 2
   soc_sec: "#{id_number.invalid}"
   ca_resident:
-    mixture:
-      - value: Y
-        weight: 5
-      - value: N
-        weight: 3
+    switch:
+      - onlyif: this.current_year - this.year_in_ca_since > 3
+        value: Y
+      - default:
+        value: N
+
+  current_year:
+    lambda: datetime.date.today().year
+
+hide:
+  - current_year
+  - years_in_ca
+  - year_in_ca_since

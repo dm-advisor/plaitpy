@@ -15,20 +15,21 @@ fields:
         weight: 9
   earned_income:
     random: randint(30000,250000)
-#  num_supported_by_income:
+  num_supported_by_income:
+    mixture:
+      - value: 1
+      - value: 2
+      - value: 3
+      - value: 4
+      - value: 5
 #  parent_education_level:
-#  ca_resident_tuition:
-#    mixture:
-#      - value: Y
-#        weight: 5
-#      - value: N
-#        weight: 3
+  ca_resident_tuition:
+    mixture:
+      - value: Y
+        weight: 5
+      - value: N
+        weight: 3
 
-#  hs_name:
-#  hs_city:
-#  hs_type:
-#  hs_start_date:
-#  hs_end_date:
 #  diploma_received_month:
 #  diploma_received_year:
   diploma:
@@ -38,7 +39,6 @@ fields:
       - value: "IB Diploma"
       - value: "GED"
       - value: "Other"
-#  hs_language:
   international_experience:
     mixture:
       - value: Y
