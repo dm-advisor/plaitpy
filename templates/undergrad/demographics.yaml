@@ -1,3 +1,4 @@
+# demographics.yaml
 fields:
   ethnicity: "#{demographic.race}"
   hispanic_latino:

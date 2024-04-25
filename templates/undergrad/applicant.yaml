@@ -1,6 +1,10 @@
+# applicant.yaml
 # an applicant generator
-# To generate 10 sample records, change directory to bin and then execute:
-#      plait.py ../templates/undergrad/applicant.yaml --csv --num 10
+# To generate 10 sample records in JSON format, change directory to bin and then execute:
+#     plait.py ../templates/undergrad/applicant.yaml --json --num 10
+# To make the produced JSON file pretty, execute:
+#     python ../src/pretty_json.py {input-file-name}.json > {output-file-name}.json
+#
 mixin:
   - application_info.yaml
   - personal_info.yaml

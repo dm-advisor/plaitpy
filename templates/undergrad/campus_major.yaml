@@ -1,9 +1,10 @@
+# campus_major.yaml
 fields:
   campus_applied:
     lambda: random.sample(['Berkeley', 'Davis', 'Irvine', 'Los Angeles', 'Merced', 'Riverside', 'Santa Barbara', 
-                           'Santa Cruz', 'San Diego'], k=random.randint(1,3))
+                           'Santa Cruz', 'San Diego'], k=random.randint(1,5))
   # Can only generate majors for the first campus in the campus_applied list.
-  applied_major:
+  declared_major:
     csv: "data/CCM Undergrad_data.csv"
     column: 0
     index: 2
