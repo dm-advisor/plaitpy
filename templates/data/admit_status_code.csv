@@ -1,0 +1,23 @@
+Num,Code,Description
+1,04,Pending
+2,05,Campus Review
+3,06,Approved
+4,07,Approved for Participation
+5,08,Accepted
+6,09,Placed
+7,10,Not Selected
+8,13,Alternate
+9,15,Withdrawn: Pre-Departure
+10,21,withdrawn: Post-Departure
+11,25,Cancelled
+12,26,In Progress
+13,27,Final Review
+14,28,Registerar Review
+15,35,Final Approval
+16,36,Missing Requirements
+17,37,Matriculation Review
+18,38,Further Follow-Up
+19,40,Not Qualified
+20,41,Rejected
+21,42,Incomplete Application
+22,  ,Advising
