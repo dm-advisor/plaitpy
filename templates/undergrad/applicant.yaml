@@ -1,5 +1,8 @@
 # applicant.yaml - UC undergraduate applicant data generator
 #
+# Note: faker usage is limited to *.yml files that are available in the following path:
+#  ~/plaitpy/venv/lib/site-packages/vendor/faker/lib/locales/en/
+#
 # To generate 10 sample records in JSON format, change directory to bin and then execute:
 #     plait.py ../templates/undergrad/applicant.yaml --json --num 10
 # To make the JSON output file pretty (easier for human consumption), execute:

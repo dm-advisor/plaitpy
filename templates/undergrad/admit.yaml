@@ -1,6 +1,8 @@
 # admit.yaml - UC undergraduate admission campus data generator
+#
 # Note: faker usage is limited to *.yml files that are available in the following path:
 #  ~/plaitpy/venv/lib/site-packages/vendor/faker/lib/locales/en/
+#
 # To generate 10 sample records in CSV format, change directory to bin and then execute:
 #     plait.py ../templates/undergrad/admit.yaml --csv --num 10
 #
