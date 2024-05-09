@@ -1,0 +1,11 @@
+fields:
+  _application_id:
+    template: undergrad/generate_id.yaml
+    args:
+      id_start:
+        value: 100
+      id_end:
+        value: 200
+
+  application_id:
+    lambda: this._application_id["random_id"]
