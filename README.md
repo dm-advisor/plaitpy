@@ -1,173 +1,58 @@
 ## plait.py
+This project is a fork of plait.py. For more information refer to [plait.py](https://github.com/plaitpy/plaitpy) in github.
 
-plait.py is a program for generating fake data from composable yaml templates. 
-To execute the program change directory to bin and issue the following command:
+The main purpose of this project is to generate the following 3 distinct synthetic datasets for a hypothetical higher education institution:
+* undergraduate applicants (i.e., applicants file)
+* undergraduate admitted candidates (i.e., admits file)
+* undergraduate enrolled students (i.e., enrollment file)
 
-./plait.py template-full-path-and-name options
+### How this project is different from plait.py
+The following customizations were applied to this fork:
 
-Options are:
-* --dir parent directory for templates and data files
-* --num number of records to generate
-* --csv encode records as CSV
-* --json encode records as JSON
+* Changed all `dump(json.load(f))` references in ~/src/template.py to `safe_dump(json.load(f))`
+* A number of new templates were introduced in ~/templates/undergrad directory
 
-Example:
- ./plait.py ../templates/undergrad/applicant.yaml --csv --num=10
+### Usage
+Follow the steps below, in the order they are listed, to generate and use the synthetic data.
+1. Execute the following command in the ~/bin directory to generate the applicants' data.
+   * `plait.py ../templates/undergrad/applicant.yaml --json --num 250000 > /tmp/applicant_\<term\>_\<year\>.json`
+   
+      If you want to eyeball the above output easier you can execute:
+   
+        `python ../src/pretty_json.py /tmp/applicant_\<term\>_\<year\>.json.json > {output-file-name}.json`
+2. Upload the plait.py command output file to the following AWS S3 path:
+   * datamorph-demo/datasets/university_data/applicant
+3. Execute the following datamorph pipeline: appicant_data_bronze
+4. Create a delta table that overlays the target dataset from the previous step:
 
-The idea behind plait.py is that it should be easy to model fake data that
-has an interesting shape. Currently, many fake data generators model their data as a
-collection of
-[IID](https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables)
-variables; with plait.py we can stitch together those variables into a more
-coherent model.
+    `CREATE EXTERNAL TABLE IF NOT EXISTS datamorph_demo.applicant_raw_delta
+      COMMENT 'This table stores the University applicants data in delta format'
+      LOCATION 's3://datamorph-demo/output/university_athena_bronze/applicant_raw_delta'
+      TBLPROPERTIES ('table_type' = 'DELTA');`
+5. To synchronize application_id values between applicants and admits files generate a row_num by executing the following query in the Athena console and download the results to a file named indexed_applicants.csv:
+   
+   `SELECT applicant_id, row_num FROM (
+     SELECT applicant_id,
+            row_number() over (order by applicant_id) as row_num
+     FROM datamorph_demo.applicant_raw_delta 
+   )
+   WHERE row_num between 1 and 250000;`
 
-some example uses for plait.py are:
+   The query above assumes that you have generated 250,000 applicant records.
+6. Place the indexed_applicants.csv file in ~/templates/data directory. This file is used by the template that will be used in the next step.
+7. Execute the following command in the ~/bin directory to generate the applicants' data.
+   * `plait.py ../templates/undergrad/admit.yaml --json --num 250000 > /tmp/admit_\<term\>_\<year\>.json`
+8. Upload the generated file to the following AWS S3 path:
+   * datamorph-demo/datasets/university_data/admission
+9. Execute the following datamorph pipeline: admission_data_bronze
+10. Create a delta table that overlays the target dataset from the previous step:
 
-* generating mock application data in test environments
-* validating the usefulness of statistical techniques
-* creating synthetic datasets for performance tuning databases
+    `CREATE EXTERNAL TABLE IF NOT EXISTS datamorph_demo.admission_raw_delta
+    COMMENT 'This table stores data in delta format about University applicants who have been admitted'
+    LOCATION 's3://datamorph-demo/output/university_athena_bronze/admission_raw_delta'
+    TBLPROPERTIES ('table_type' = 'DELTA');`
 
-### features
-
-* declarative syntax
-* use basic [faker.rb](https://github.com/stympy/faker) fields with #{} interpolators
-* sample and join data from CSV files
-* lambda expressions, switch and mixture fields
-* nested and composable templates
-* static variables and hidden fields
-
-### an example template
-
-    # a person generator
-    define:
-      min_age: 10
-      minor_age: 13
-      working_age: 18
-
-    fields:
-      age:
-        random: gauss(25, 5)
-        # minimum age is $min_age
-        finalize: max($min_age, value)
-
-      gender:
-        mixture:
-          - value: M
-          - value: F
-
-      name: "#{name.name}"
-      job:
-        value: "#{job.title}"
-        onlyif: this.age > $working_age
-
-      address:
-        template: address/usa.yaml
-      phone: # add a phone if the person is older than the minor age
-        template: device/phone.yaml
-        onlyif: this.age > ${minor_age}
-
-      # we model our height as a gaussian that varies based on
-      # age and gender
-      height:
-        lambda: this._base_height * this._age_factor
-      _base_height:
-        switch:
-          - onlyif: this.gender == "F"
-            random: gauss(60, 5)
-          - onlyif: this.gender == "M"
-            random: gauss(70, 5)
-
-      _age_factor:
-        switch:
-          - onlyif: this.age < 15
-            lambda: 1 - (20 - (this.age + 5)) / 20
-          - default:
-            value: 1
-
-
-
-### how its different
-
-some specific examples of what plait.py can do:
-
-* generate proportional populations using census data and CSVs
-* create realistic zipcodes by state, city or region (also using CSVs)
-* create a taxi trip dataset with a cost model based on geodistance
-* add seasonal patterns (daily, weekly, etc) to data
-
-## usage
-
-### installation
-
-    # install with python
-    pip install plaitpy
-
-    # or with pypy
-    pypy-pip install plaitpy
-
-### cloning the repo for development
-
-    git clone https://github.com/plaitpy/plaitpy
-
-    # get the fakerb repo
-    git submodule init
-    git submodule update
-
-### generating records from command line
-
-specify a template as a yaml file, then generate records from that yaml file.
-
-    # a simple example (if cloning plait.py repo)
-    python main.py templates/timestamp/uniform.yaml
-
-    # if plait.py is installed via pip
-    plait.py templates/timestamp/uniform.yaml
-
-### generating records from API
-
-    import plaitpy
-    t = plaitpy.Template("templates/timestamp/uniform.yaml")
-    print t.gen_record()
-    print t.gen_records(10)
-
-### looking up faker fields
-
-plait.py also simplifies looking up faker fields:
-
-    # list faker namespaces
-    plait.py --list
-    # lookup faker namespaces
-    plait.py --lookup name
-
-    # lookup faker keys
-    # (-ll is short for --lookup)
-    plait.py --ll name.suffix
-
-## documentation
-
-### yaml file commands
-
-* see docs/FORMAT.md
-
-### datasets
-
-* see docs/EXAMPLES.md
-* also see templates/ dir
-
-### troubleshooting
-
-* see docs/TROUBLESHOOTING.md
-
-
-### Dependent Markov Processes
-
-To simulate data that comes from many markov processes (a markov ecosystem),
-see the [plaitpy-ipc](https://github.com/plaitpy/plaitpy-ipc) repository.
-
-### future direction
-
-If you have ideas on features to add, open an issue - Feedback is appreciated!
-
+TODO: complete the above instructions
 ### License
 
 [MIT](https://github.com/plaitpy/plaitpy/blob/master/LICENSE.txt)

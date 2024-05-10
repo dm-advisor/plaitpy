@@ -1,0 +1,4 @@
+fields:
+  month:
+    lambda: random.choice(random.choices(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+      'October', 'November', 'December'], weights=(1, 1, 1, 1, 9, 10, 4, 5, 4, 1, 1, 1), k=1))

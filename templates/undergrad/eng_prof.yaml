@@ -1,0 +1,29 @@
+# eng_prof.yaml
+imports:
+  - datetime
+
+define:
+  days_in_year: 365.2425
+
+args:
+  hs_start_date: '2018-09-16'
+  exams_list:
+    lambda: ['TOFEL iBT', 'IELTS-Academic', 'Duolingo English Test',
+            'ACT English Language Arts', 'SAT Writing & Language']
+  exams_weights:
+    lambda: (1, 1, 1, 1, 1)
+
+fields:
+  exam_name:
+    lambda: random.choice(random.choices(this.exams_list, 
+            weights=this.exams_weights, k=1))
+  exam_date:
+    lambda: str(datetime.datetime.strptime(this.hs_start_date, '%Y-%m-%d').date() +
+      datetime.timedelta(days=(${days_in_year} * random.uniform(1.1,3.1))))
+  exam_score:
+    random: randint(500, 800)
+
+hide:
+  - hs_start_date
+  - exams_list
+  - exams_weights

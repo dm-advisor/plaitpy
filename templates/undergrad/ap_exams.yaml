@@ -1,0 +1,43 @@
+# ap_exams.yaml
+imports:
+  - datetime
+
+define:
+  days_in_year: 365.2425
+
+args:
+  hs_start_date: '2018-09-16'
+  exams_list:
+    lambda: ['2-D Art and Design', '3-D Art and Design', 'African American Studies', 'Art History',
+            'Biology', 'Calculus AB', 'Calculus AB Subscore', 'Calculus BC', 'Chemistry',
+             'Chinese Language and Culture', 'Comparative Government and Politics',
+             'Computer Science A', 'Computer Science Principles', 'Drawing', 'Economics: Macro',
+             'Economics: Micro', 'English Language and Composition', 'Environmental Science',
+             'European History', 'French Language/Language and Culture', 'German Language/Language and Culture',
+             'Human Geography', 'Italian Language and Culture', 'Japanese Language and Culture', 'Latin',
+             'Music Theory', 'Physics B', 'Physics C: Electricity and Magnetism', 'Physics C: Mechanics',
+             'Physics 1', 'Physics 2', 'Psychology', 'Research', 'Seminar', 'Spanish Language/Language and Culture',
+             'Spanish Literature/Literature and Culture', 'Statistics', 'U.S. Government and Politics',
+             'U.S. History', 'World History: Modern'
+    ]
+  exams_weights:
+    lambda: (2, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+             1, 1, 1, 1, 3, 1, 1, 1, 1, 1,
+             1, 1, 2, 1, 1, 1, 1, 1, 1, 1,
+             1, 1, 1, 1, 2, 1, 1, 1, 2, 1
+      )
+
+fields:
+  exam_name:
+    lambda: random.choice(random.choices(this.exams_list, 
+            weights=this.exams_weights, k=1))
+  exam_date:
+    lambda: str(datetime.datetime.strptime(this.hs_start_date, '%Y-%m-%d').date() +
+      datetime.timedelta(days=(${days_in_year} * random.uniform(1.1,3.1))))
+  exam_score:
+    random: randint(500, 800)
+
+hide:
+  - hs_start_date
+  - exams_list
+  - exams_weights
