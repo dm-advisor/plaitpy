@@ -1,11 +1,61 @@
 fields:
+  academic_year: 2023
+  _id_start:
+    switch:
+      - onlyif: this.academic_year == 2023
+        value: 9000000000
+      - onlyif: this.academic_year == 2022
+        value: 7000000000
+      - onlyif: this.academic_year == 2021
+        value: 5000000000
+      - onlyif: this.academic_year == 2020
+        value: 3000000000
+      - onlyif: this.academic_year == 2019
+        value: 1000000000
+      - default:
+        value: 20
+  _id_end:
+    switch:
+      - onlyif: this.academic_year == 2023
+        value: 9999999999
+      - onlyif: this.academic_year == 2022
+        value: 7999999999
+      - onlyif: this.academic_year == 2021
+        value: 5999999999
+      - onlyif: this.academic_year == 2020
+        value: 3999999999
+      - onlyif: this.academic_year == 2019
+        value: 1999999999
+      - default:
+        value: 30
+  _prepend_char:
+    switch:
+      - onlyif: this.academic_year == 2023
+        value: E
+      - onlyif: this.academic_year == 2022
+        value: D
+      - onlyif: this.academic_year == 2021
+        value: C
+      - onlyif: this.academic_year == 2020
+        value: B
+      - onlyif: this.academic_year == 2019
+        value: A
+      - default:
+        value: ZZ
+
   _application_id:
     template: undergrad/generate_id.yaml
     args:
       id_start:
-        value: 100
+        lambda: this._id_start
       id_end:
-        value: 200
+        lambda: this._id_end
+      prepend_char:
+        lambda: this._prepend_char
 
   application_id:
+    # generate_id.yaml returns a dictionary of {"application_id": {"random_id": "value"}}
     lambda: this._application_id["random_id"]
+
+hide:
+  - academic_year

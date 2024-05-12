@@ -22,39 +22,19 @@ fields:
   index: # Incrementing sequence
     lambda: prev.index + 1
     initial: 0
-#  _applicant_id:
-#    template: undergrad/generate_id.yaml
-#    args:
-#      id_start:
-#        value: 100000000
-#      id_end:
-#        value: 999999999
-#  applicant_id: # appicant_id is not unique across years and terms
-#    lambda: this._applicant_id["random_id"]
   _str_index:  # To use the index to lookup applicant_id it must be converted to string
     lambda: str(this.index)
-  applicant_id:
-    switch:
-      - onlyif: this.index != 0
-        csv: data/indexed_applicants.csv
-        column: 0
-        index: 1
-        lookup: this._str_index
-      - default:
-        value: 'Not Found'
-  _application_id:
-    template: undergrad/generate_id.yaml
-    args:
-      id_start:
-        value: 100000000000
-      id_end:
-        value: 999999999999
-  application_id:   # Once applicant is admitted, this number becomes their student ID (unique across years and terms)
-    lambda: this._application_id["random_id"]
   academic_year:
     value: ${year_applied}
   academic_term:
     value: ${term_applied}
+  applicant_id: # Once applicant is admitted, this number becomes their student ID (unique across years and terms)
+    switch:
+      - onlyif: this.index != 0
+        csv: data/indexed_applicants.csv
+        column: 2
+        index: [0, 1, 3]
+        lookup: [this.academic_year, this.academic_term, this._str_index]
   gender_identity:
     mixture:
       - value: 'F '  # Female

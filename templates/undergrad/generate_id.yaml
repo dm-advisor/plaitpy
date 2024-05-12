@@ -1,28 +1,31 @@
 # Unique ID generator template that can be called with arguments from other templates.
 define:
-  random_begin: 10000
-  random_end: 99999
+  random_begin: 100000
+  random_end: 999999
 
 
 args:
-  id_start: 101000000
-  id_end: 999000000
+  id_start: 100000000000
+  id_end:   199999999999
+  prepend_char: X
 
 fields:
   random_id:
     # Generates a random integer in the range specified by id_start and id_end args. To increase uniqueness potential
     # of the generated integer, it divides the generated integer by a random number in the range of random_begin and
     # random_end and casts it to integer. It then multiplies the result by another random number in the range of
-    # random_begin and random_end. Lastly, it sizes the result back to the desired number of digits, based on the
-    # length of id_end argument.
-    random: str(int((randint(this.id_start,this.id_end) / randint(${random_begin}, ${random_end})) * 
-             randint(${random_begin}, ${random_end}))).rjust(len(str(this.id_end)), '0')[:len(str(this.id_end))]
+    # random_begin and random_end. Then, it sizes the result back to the desired number of digits, based on the
+    # length of id_end argument. Lastly, it prepends the result with prepend_char.
+    random: this.prepend_char + str(int((randint(this.id_start,this.id_end) / randint(${random_begin}, ${random_end})) * 
+             randint(${random_begin}, 
+             ${random_end}))).rjust(len(str(this.id_end)), '0')[:len(str(this.id_end))]
 
 hide:
   - id_start
   - id_end
   - random_begin
   - random_end
+  - prepend_char
 
 
 

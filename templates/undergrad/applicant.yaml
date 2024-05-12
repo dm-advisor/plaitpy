@@ -19,20 +19,67 @@ define:
   days_in_year: 365.2425
 
 fields:
-  # category: application_info
+  # section 1: application_info
+  academic_year:
+    lambda: ${year_applied}
+  academic_term:
+    lambda: ${term_applied}
+  # The applicant_ids for each year are generated using a distinct range of random numbers.
+  # In addition, the generated applicant_ids will be prefixed with a unique letter by academic_year.
+  _id_start:
+    switch:
+      - onlyif: this.academic_year == 2023
+        value: 9000000000
+      - onlyif: this.academic_year == 2022
+        value: 7000000000
+      - onlyif: this.academic_year == 2021
+        value: 5000000000
+      - onlyif: this.academic_year == 2020
+        value: 3000000000
+      - onlyif: this.academic_year == 2019
+        value: 1000000000
+      - default:
+        value: 20
+  _id_end:
+    switch:
+      - onlyif: this.academic_year == 2023
+        value: 9999999999
+      - onlyif: this.academic_year == 2022
+        value: 7999999999
+      - onlyif: this.academic_year == 2021
+        value: 5999999999
+      - onlyif: this.academic_year == 2020
+        value: 3999999999
+      - onlyif: this.academic_year == 2019
+        value: 1999999999
+      - default:
+        value: 30
+  _prepend_char:
+    switch:
+      - onlyif: this.academic_year == 2023
+        value: E
+      - onlyif: this.academic_year == 2022
+        value: D
+      - onlyif: this.academic_year == 2021
+        value: C
+      - onlyif: this.academic_year == 2020
+        value: B
+      - onlyif: this.academic_year == 2019
+        value: A
+      - default:
+        value: ZZ
   _applicant_id:
     template: undergrad/generate_id.yaml
     args:
       id_start:
-        value: 1000000000
+        lambda: this._id_start
       id_end:
-        value: 9999999999
+        lambda: this._id_end
+      prepend_char:
+        lambda: this._prepend_char
   applicant_id:
+    # generate_id.yaml returns a dictionary of {"applicant_id": {"random_id": "value"}}
     lambda: this._applicant_id["random_id"]
-  academic_year:
-    value: ${year_applied}
-  academic_term:
-    value: ${term_applied}
   application_level:
     mixture:
       - value: F
@@ -44,7 +91,7 @@ fields:
   campus_major:
     template: campus_major.yaml
 
-  # category: personal_info
+  # Section 2: personal_info
   _age:
     #  return a random floating point number with gaussian distribution (mean=25 and standard deviation=3)
     random: gauss(23, 3)
@@ -320,8 +367,7 @@ fields:
   current_year:
     lambda: datetime.date.today().year
 
-  # category: demographics
-  #  ethnicity: "#{demographic.race}"
+  # Section 3: demographics
   ethnicity:
     mixture:
       - value: 'American Indian or Alaska Native'
@@ -351,7 +397,7 @@ fields:
       - value: N
         weight: 2
 
-  # category: background_info
+  # Section 4: background_info
   first_language:
     mixture:
       - value: 'English only'
