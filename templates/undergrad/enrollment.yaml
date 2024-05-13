@@ -1,0 +1,143 @@
+# enrollment.yaml - Undergraduate enrollment data generator
+#
+# Note: faker usage is limited to *.yml files that are available in the following path:
+#  ~/plaitpy/venv/lib/site-packages/vendor/faker/lib/locales/en/
+#
+# To generate 10 sample records in CSV format, change directory to bin and then execute:
+#     plait.py ../templates/undergrad/enrollment.yaml --csv --num 10
+#
+# On Windows, the generated CSV file includes carriage return characters causing a blank line
+# after each record. Execute the following script to remove them:
+#      cat file1-name.csv | tr -d '\r' > file2-name.csv
+imports:
+  - datetime
+  - timedelta
+  - itertools
+
+define:
+  year_applied: 2023
+  term_applied: 2
+
+fields:
+  _degree_category:
+    value: Bachelor
+  index: # Incrementing sequence
+    lambda: prev.index + 1
+    initial: 0
+  _str_index:  # To use the index to lookup applicant_id it must be converted to string
+    lambda: str(this.index)
+  academic_year:
+    value: ${year_applied}
+  academic_term:
+    value: ${term_applied}
+  registration_status_code:
+    mixture:
+      - value: C
+        weight: 5
+      - value: R
+        weight: 1
+      - value: N
+        weight: 2
+  state_residency_status:
+    mixture:
+      - value: R
+        weight: 5
+      - value: N
+        weight: 3
+#  student_id: # Once applicant is admitted, this number becomes their student ID (unique across years and terms)
+#    switch:
+#      - onlyif: this.index != 0
+#        csv: data/indexed_admissions.csv # Refer to README.md for instructions to create this CSV file.
+#        column: 5
+#        index: [ 0, 1, 6 ]
+#        lookup: [ this.academic_year, this.academic_term, this._str_index ]
+#  campus_registered_code:
+#    switch:
+#      - onlyif: this.index != 0
+#        csv: data/indexed_admissions.csv # Refer to README.md for instructions to create this CSV file.
+#        column: 2
+#        index: [ 0, 1, 6 ]
+#        lookup: [ this.academic_year, this.academic_term, this._str_index ]
+#  college_code:
+#    switch:
+#      - onlyif: this.index != 0
+#        csv: data/indexed_admissions.csv # Refer to README.md for instructions to create this CSV file.
+#        column: 2
+#        index: [ 0, 1, 6 ]
+#        lookup: [ this.academic_year, this.academic_term, this._str_index ]
+#  major_code:
+#    switch:
+#      - onlyif: this.index != 0
+#        csv: data/indexed_admissions.csv # Refer to README.md for instructions to create this CSV file.
+#        column: 2
+#        index: [ 0, 1, 6 ]
+#        lookup: [ this.academic_year, this.academic_term, this._str_index ]
+  degree_program_code:
+    csv: data/degree_data.csv
+    column: 0
+    index: 5
+    lookup: this._degree_category
+  _units_completed_ttd:
+    lambda: round(random.uniform(3.0, 80.0),1)
+  units_completed_ttd: # 999.9
+    lambda: str(this._units_completed_ttd).rjust(5, '0')
+  _units_attempted_graded_pn_curr_term:
+    lambda: round(random.uniform(3.0, 9.0),1)
+  units_attempted_graded_pn_curr_term:  # 99.9
+    lambda: str(this._units_attempted_graded_pn_curr_term).rjust(4, '0')
+  _units_attempted_graded_ttd:
+    lambda: round(random.uniform(4.0, 90.0),1)
+  units_attempted_graded_ttd: # 999.9
+    lambda: str(this._units_attempted_graded_ttd).rjust(5, '0')
+  _grade_points_ttd:
+    lambda: round(random.uniform(2.0, 100.0),1)
+  grade_points_ttd: # 999.9
+    lambda: str(this._grade_points_ttd).rjust(5, '0')
+  _units_passed_graded_ttd:
+    lambda: round(random.uniform(2.0, 100.0),1)
+  units_passed_graded_ttd: # 999.9
+    lambda: str(this._units_passed_graded_ttd).rjust(5, '0')
+  _units_incomplete_ttd:
+    lambda: round(random.uniform(3.0, 9.0),1)
+  units_incomplete_ttd:  # 99.9
+    lambda: str(this._units_incomplete_ttd).rjust(4, '0')
+  _units_attempted_lower_div:
+    lambda: round(random.uniform(3.0, 9.0),1)
+  units_attempted_lower_div:  # 99.9
+    lambda: str(this._units_attempted_lower_div).rjust(4, '0')
+  _units_attempted_upper_div:
+    lambda: round(random.uniform(3.0, 9.0),1)
+  units_attempted_upper_div:  # 99.9
+    lambda: str(this._units_attempted_upper_div).rjust(4, '0')
+  _non_degree_units_attempted_curr:
+    lambda: round(random.uniform(3.0, 9.0),1)
+  non_degree_units_attempted_curr:  # 99.9
+    lambda: str(this._non_degree_units_attempted_curr).rjust(4, '0')
+  _units_passed_pn_ttd:
+    lambda: round(random.uniform(6.0, 40.0),1)
+  units_passed_pn_ttd: # 999.9
+    lambda: str(this._units_passed_pn_ttd).rjust(5, '0')
+  part_time_student:
+    mixture:
+      - value: 'N'
+        weight: 9
+      - value: 'Y'
+        weight: 1
+
+  in_absentia_status_code:
+    mixture:
+      - value: 'N'
+        weight: 9
+      - value: 'Y'
+        weight: 0.5
+      - value: ' '
+        weight: 1
+#  semester_quarter_code:
+#    switch:
+#      - onlyif: this.campus_registered_code in ['01', '10']
+#        value: 'S'
+#      - default:
+#        value: 'Q'
+
+hide:
+  - index
