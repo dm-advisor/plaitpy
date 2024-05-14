@@ -1,6 +1,6 @@
 # applicant.yaml - University undergraduate applicant data generator
 #
-# Note: faker usage is limited to *.yml files that are available in the following path:
+# Note: faker usage plait.py is limited to *.yml files that are available in the following path:
 #  ~/plaitpy/venv/lib/site-packages/vendor/faker/lib/locales/en/
 #
 # To generate 10 sample records in JSON format, change directory to bin and then execute:
@@ -19,79 +19,50 @@ define:
   days_in_year: 365.2425
 
 fields:
-  # section 1: application_info
+  # section 1: application_info fields
   academic_year:
-    lambda: ${year_applied}
+    lambda: str(${year_applied})
   academic_term:
-    lambda: ${term_applied}
-  # The applicant_ids for each year are generated using a distinct range of random numbers.
-  # In addition, the generated applicant_ids will be prefixed with a unique letter by academic_year.
-  _id_start:
-    switch:
-      - onlyif: this.academic_year == 2023
-        value: 9000000000
-      - onlyif: this.academic_year == 2022
-        value: 7000000000
-      - onlyif: this.academic_year == 2021
-        value: 5000000000
-      - onlyif: this.academic_year == 2020
-        value: 3000000000
-      - onlyif: this.academic_year == 2019
-        value: 1000000000
-      - default:
-        value: 20
-  _id_end:
-    switch:
-      - onlyif: this.academic_year == 2023
-        value: 9999999999
-      - onlyif: this.academic_year == 2022
-        value: 7999999999
-      - onlyif: this.academic_year == 2021
-        value: 5999999999
-      - onlyif: this.academic_year == 2020
-        value: 3999999999
-      - onlyif: this.academic_year == 2019
-        value: 1999999999
-      - default:
-        value: 30
+    lambda: str(${term_applied})
+  # To ensure uniqueness across years, the generated applicant_ids will be prefixed
+  # with a unique letter by academic_year.
   _prepend_char:
     switch:
-      - onlyif: this.academic_year == 2023
+      - onlyif: this.academic_year == '2023'
         value: E
-      - onlyif: this.academic_year == 2022
+      - onlyif: this.academic_year == '2022'
         value: D
-      - onlyif: this.academic_year == 2021
+      - onlyif: this.academic_year == '2021'
         value: C
-      - onlyif: this.academic_year == 2020
+      - onlyif: this.academic_year == '2020'
         value: B
-      - onlyif: this.academic_year == 2019
+      - onlyif: this.academic_year == '2019'
         value: A
       - default:
         value: ZZ
   _applicant_id:
     template: undergrad/generate_id.yaml
     args:
-      id_start:
-        lambda: this._id_start
-      id_end:
-        lambda: this._id_end
+      # Use the default id_start and id_end values in the above template. Hence,
+      # not including id_start and id_end arguments here.
       prepend_char:
         lambda: this._prepend_char
   applicant_id:
-    # generate_id.yaml returns a dictionary of {"applicant_id": {"random_id": "value"}}
+    # generate_id.yaml returns a dictionary of {"applicant_id": {"random_id": "value"}},
+    # which requires the lambda function below to extract the value.
     lambda: this._applicant_id["random_id"]
   application_level:
     mixture:
-      - value: F
+      - value: F  # Freshman
         weight: 10
-      - value: T
+      - value: T  # Transfer
         weight: 4
-      - value: O
+      - value: O  # Other
         weight: 0.5
   campus_major:
     template: campus_major.yaml
 
-  # Section 2: personal_info
+  # Section 2: personal_info fields
   _age:
     #  return a random floating point number with gaussian distribution (mean=25 and standard deviation=3)
     random: gauss(23, 3)
@@ -367,7 +338,7 @@ fields:
   current_year:
     lambda: datetime.date.today().year
 
-  # Section 3: demographics
+  # Section 3: demographics fields
   ethnicity:
     mixture:
       - value: 'American Indian or Alaska Native'
@@ -397,7 +368,7 @@ fields:
       - value: N
         weight: 2
 
-  # Section 4: background_info
+  # Section 4: background_info fields
   first_language:
     mixture:
       - value: 'English only'
@@ -500,6 +471,7 @@ hide:
   - years_in_ca
   - year_in_ca_since
 
+# mixins not working!
 # For some unknown reason, when mixin is used as shown below, as opposed to including all fields in one
 # yaml file, then all applicants end up with the same first_name, birth_city, birth_country, address_city,
 # address_state, address_zip, citizenship_country and citizenship_status values.

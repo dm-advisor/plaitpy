@@ -1,19 +1,14 @@
 # admit.yaml - Undergraduate admission data generator
 #
-# Note: faker usage is limited to *.yml files that are available in the following path:
+# Note: faker usage in plait.py is limited to *.yml files that are available in the following path:
 #  ~/plaitpy/venv/lib/site-packages/vendor/faker/lib/locales/en/
 #
 # To generate 10 sample records in CSV format, change directory to bin and then execute:
 #     plait.py ../templates/undergrad/admit.yaml --csv --num 10
 #
-# On Windows, the generated CSV file includes carriage return characters causing a blank line
+# In Windows OS, the generated CSV file includes carriage return characters causing a blank line
 # after each record. Execute the following script to remove them:
 #      cat file1-name.csv | tr -d '\r' > file2-name.csv
-imports:
-  - datetime
-  - timedelta
-  - itertools
-
 define:
   year_applied: 2023
   term_applied: 2
@@ -25,9 +20,9 @@ fields:
   _str_index:  # To use the index to lookup applicant_id it must be converted to string
     lambda: str(this.index)
   academic_year:
-    value: ${year_applied}
+    lambda: str(${year_applied})
   academic_term:
-    value: ${term_applied}
+    lambda: str(${term_applied})
   applicant_id: # Once applicant is admitted, this number becomes their student ID (unique across years and terms)
     switch:
       - onlyif: this.index != 0
@@ -88,23 +83,23 @@ fields:
       - value: '4' # Senior
   campus_proposed_code:
     mixture:
-      - value: '01'
+      - value: '01' # Berkeley
         weight: 7
-      - value: '03'
+      - value: '03' # Davis
         weight: 5
-      - value: '04'
+      - value: '04' # Los Angeles
         weight: 5
-      - value: '05'
+      - value: '05' # Riverside
         weight: 4
-      - value: '06'
+      - value: '06' # San Diego
         weight: 3
-      - value: '07'
+      - value: '07' # Santa Cruz
         weight: 3
-      - value: '08'
+      - value: '08' # Santa Barbara
         weight: 3
-      - value: '09'
+      - value: '09' # Irvine
         weight: 4
-      - value: '10'
+      - value: '10' # Merced
         weight: 1
   college_proposed_code:
     csv: "data/CCM Undergrad_data.csv"
@@ -135,58 +130,60 @@ fields:
     lookup: this._admit_status_code
   _transfer_units:
     switch:
+      # Maximum allowed transfer units for semester campuses is 70.
+      # Maximum allowed transfer units for quarter campuses is 105.
       - onlyif: this.campus_proposed_code == '01' or this.campus_proposed_code == '10'
         lambda: round(random.uniform(3.0, 70.0), 1)
       - onlyif: this.campus_proposed_code in ['03', '04', '05', '06', '07', '08', '09']
         lambda: round(random.uniform(4.0, 105.0), 1)
       - default:
         lambda: round(random.uniform(0.0, 105.0), 1)
-  transfer_units_estimated_self:
+  transfer_units_estimated_self:  # Format: 999.9
     lambda: str(this._transfer_units).rjust(5, '0')
   _transfer_units_attempted_graded_src:
     lambda: round(this._transfer_units / random.randint(1,3),1)
-  transfer_units_attempted_graded_src:
+  transfer_units_attempted_graded_src:  # Format: 999.9
     lambda: str(this._transfer_units_attempted_graded_src).rjust(5, '0')
   _transfer_units_passed_graded_src:
     lambda: round(this._transfer_units / random.randint(1,3),1)
-  transfer_units_passed_graded_src:
+  transfer_units_passed_graded_src:  # Format: 999.9
     lambda: str(this._transfer_units_passed_graded_src).rjust(5, '0')
   _transfer_grade_points_graded_src:
     lambda: round(random.uniform(3.1, 4.0),1)
-  transfer_grade_points_graded_src:
+  transfer_grade_points_graded_src:  # Format: 999.9
     lambda: str(this._transfer_grade_points_graded_src).rjust(5, '0')
   _transfer_units_passed_pn_src:
     lambda: round(this._transfer_units / random.randint(5,10),1)
-  transfer_units_passed_pn_src:
+  transfer_units_passed_pn_src:  # Format: 999.9
     lambda: str(this._transfer_units_passed_pn_src).rjust(5, '0')
-  transfer_units_accepted_src:
+  transfer_units_accepted_src:  # Format: 999.9
     lambda: str(round((this._transfer_units_attempted_graded_src + this._transfer_grade_points_graded_src + 
             this._transfer_units_passed_pn_src),1)).rjust(5, '0')
   _transfer_units_attempted_graded:
     lambda: round(this._transfer_units / random.randint(1,3),1)
-  transfer_units_attempted_graded:
+  transfer_units_attempted_graded:  # Format: 999.9
     lambda: str(this._transfer_units_attempted_graded).rjust(5, '0')
   _transfer_units_passed_graded:
     lambda: round(this._transfer_units / random.randint(1,3),1)
-  transfer_units_passed_graded:
+  transfer_units_passed_graded:  # Format: 999.9
     lambda: str(this._transfer_units_passed_graded).rjust(5, '0')
   _transfer_grade_points_graded:
     lambda: round(random.uniform(3.1, 4.0),1)
-  transfer_grade_points_graded:
+  transfer_grade_points_graded:  # Format: 999.9
     lambda: str(this._transfer_grade_points_graded).rjust(5, '0')
   _transfer_units_attempted_graded_ttl:
     lambda: round((this._transfer_units_attempted_graded_src + this._transfer_units_attempted_graded),1)
-  transfer_units_attempted_graded_ttl:
+  transfer_units_attempted_graded_ttl:  # Format: 999.9
     lambda: str(this._transfer_units_attempted_graded_ttl).rjust(5, '0')
   _transfer_units_passed_graded_ttl:
     lambda: round((this._transfer_units_passed_graded_src + this._transfer_units_passed_graded),1)
-  transfer_units_passed_graded_ttl:
+  transfer_units_passed_graded_ttl:  # Format: 999.9
     lambda: str(this._transfer_units_passed_graded_ttl).rjust(5, '0')
   _transfer_grade_points_graded_ttl:
     lambda: round((this._transfer_grade_points_graded_src + this._transfer_grade_points_graded),1)
-  transfer_grade_points_graded_ttl:
+  transfer_grade_points_graded_ttl:  # Format: 999.9
     lambda: str(this._transfer_grade_points_graded_ttl).rjust(5, '0')
-  transfer_units_accepted_ttl:
+  transfer_units_accepted_ttl:  # Format: 999.9
     lambda: str(round((this._transfer_units_attempted_graded_ttl + this._transfer_units_passed_graded_ttl + 
             this._transfer_grade_points_graded_ttl) / random.randint(1,3),1)).rjust(5, '0')
 
