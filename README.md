@@ -24,14 +24,14 @@ The following customizations were applied to this fork:
 ### Installation
 To install the Python package for generating synthetic data follow the steps below. 
 1.	Verify that pip is installed on your machine:
-pip --version
+`pip --version`
 2.	Clone the repository to your local machine using the following command: 
-git clone https://github.com/dm-advisor/plaitpy.git
+`git clone https://github.com/dm-advisor/plaitpy.git`
 3.	Change directory to the cloned repository’s root directory.
 4.	Install the package using pip:
-pip install . 
-5.	To verify the installation, issue the pip freeze command and ensure that plaitpy points to the root directory 
-of the cloned repository (e.g., plaitpy @ file:<local directory>).
+`pip install .` 
+5.	To verify the installation, issue the `pip freeze` command and ensure that plaitpy points to the root directory 
+of the cloned repository (e.g., plaitpy @ file:///\<local directory\>).
 ### Usage
 Follow the steps below, in the order they are listed, to generate the synthetic data in applicants, admits 
 and students files and load them into the bronze layer of the delta lake. Note that you can change the 
@@ -60,13 +60,13 @@ templates in the ~/plaitpy/templates/undergrad directory and repeat the steps be
       TBLPROPERTIES ('table_type' = 'DELTA');`
 
     Note: Each time plait.py runs it may generate a handful of duplicate application_ids in the applicant synthetic 
-    data. The rows with duplicate application_ids will be dropped using the SQL in the next step. 
+    data. The rows with duplicate application_ids will be excluded using the SQL in the next step. 
     To identify the rows with duplicate application_ids run the following query:
 
     `SELECT academic_year, academic_term, applicant_id, count(*) as count FROM datamorph_demo.applicant_raw_delta GROUP BY academic_year, academic_term, applicant_id HAVING count(*) > 1;`
 #### Admits file:
    5. To synchronize application_id values between applicants and admits files, generate a row_num column by executing the 
-   following query in the Athena console and download the results to a file named indexed_applicants.csv:
+   following query in the Athena console. Then download the query results to a file named indexed_applicants.csv:
    
        `SELECT academic_year, academic_term, applicant_id, row_num 
    FROM ( 
@@ -81,21 +81,21 @@ templates in the ~/plaitpy/templates/undergrad directory and repeat the steps be
    WHERE academic_year = '{year}' AND academic_term = '{term}' 
    ORDER BY academic_year, academic_term, applicant_id;`
     
-       Note 1: The AND in the last WHERE clause in the above query excludes the rows with duplicate 
+       Note 1: {year} = 2023, 2022, 2021, 2020 or 2019 and {term} = 2
+
+       Note 2: The inner WHERE clause in the above query excludes the rows with duplicate 
        application_id values (refer to the note in the previous step). In this situation, the application_id
        of the duplicate rows in the applicants file end up with null values in the admits file. You can
        confirm this by running the following query:
 
-   `WITH temp as ( 
-       SELECT a.academic_year, a.academic_term, a.applicant_id as applicant_applicant_id, b.applicant_id as admit_applicant_id 
-       FROM datamorph_demo.applicant_raw_delta a 
-       LEFT OUTER JOIN datamorph_demo.admission_raw_delta b 
-       ON a.applicant_id = b.applicant_id 
-       AND a.academic_year = b.academic_year 
-       AND a.academic_term = b.academic_term 
-   ) select * from temp where admit_applicant_id is null;`
-
-       Note 2: {year} = 2023, 2022, 2021, 2020 or 2019 and {term} = 2
+       `WITH temp as ( 
+           SELECT a.academic_year, a.academic_term, a.applicant_id as applicant_applicant_id, b.applicant_id as admit_applicant_id 
+           FROM datamorph_demo.applicant_raw_delta a 
+           LEFT OUTER JOIN datamorph_demo.admission_raw_delta b 
+           ON a.applicant_id = b.applicant_id 
+           AND a.academic_year = b.academic_year 
+           AND a.academic_term = b.academic_term 
+       ) select * from temp where admit_applicant_id is null;`
 
 6. Place the indexed_applicants.csv file in ~/plaitpy/templates/data directory. This file will be leveraged by the 
 yaml template in the next step.
@@ -115,7 +115,7 @@ yaml template in the next step.
 
 #### students file:
 11. To synchronize application_id values in the admits file with student_id values in the students file generate 
-a row_num column by executing the following query in the Athena console and download the results to a file named 
+a row_num column by executing the following query in the Athena console. Then download the query results to a file named 
 indexed_admissions.csv:
 
     `SELECT academic_year, academic_term, campus_proposed_code, college_proposed_code, major_proposed_code, applicant_id, row_num 
