@@ -84,8 +84,8 @@ templates in the ~/plaitpy/templates/undergrad directory and repeat the steps be
        Note 1: {year} = 2023, 2022, 2021, 2020 or 2019 and {term} = 2
 
        Note 2: The inner WHERE clause in the above query excludes the rows with duplicate 
-       application_id values (refer to the note in the previous step). In this situation, the application_id
-       of the duplicate rows in the applicants file end up with null values in the admits file. You can
+       application_id values (refer to the note in the previous step). In this situation, the rows corresponding
+       to the duplicate applicant rows end up with null values in their application_id in the admits file. You can
        confirm this by running the following query:
 
        `WITH temp as ( 
