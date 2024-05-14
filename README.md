@@ -65,37 +65,37 @@ templates in the ~/plaitpy/templates/undergrad directory and repeat the steps be
 
     `SELECT academic_year, academic_term, applicant_id, count(*) as count FROM datamorph_demo.applicant_raw_delta GROUP BY academic_year, academic_term, applicant_id HAVING count(*) > 1;`
 #### Admits file:
-5. To synchronize application_id values between applicants and admits files, generate a row_num column by executing the 
-following query in the Athena console and download the results to a file named indexed_applicants.csv:
+   5. To synchronize application_id values between applicants and admits files, generate a row_num column by executing the 
+   following query in the Athena console and download the results to a file named indexed_applicants.csv:
    
-    `SELECT academic_year, academic_term, applicant_id, row_num 
-FROM ( 
-	SELECT academic_year, academic_term, applicant_id, row_number() 
-		   over (order by academic_year, academic_term, applicant_id) as row_num 
-	FROM datamorph_demo.applicant_raw_delta 
-	WHERE academic_year || academic_term || applicant_id not in (
-		select academic_year || academic_term || applicant_id 
-		from datamorph_demo.applicant_raw_delta 
-		group by academic_year, academic_term, applicant_id having count(*) > 1) 
-	) 
-WHERE academic_year = '{year}' AND academic_term = '{term}' 
-ORDER BY academic_year, academic_term, applicant_id;`
+       `SELECT academic_year, academic_term, applicant_id, row_num 
+   FROM ( 
+       SELECT academic_year, academic_term, applicant_id, row_number() 
+              over (order by academic_year, academic_term, applicant_id) as row_num 
+       FROM datamorph_demo.applicant_raw_delta 
+       WHERE academic_year || academic_term || applicant_id not in (
+           select academic_year || academic_term || applicant_id 
+           from datamorph_demo.applicant_raw_delta 
+           group by academic_year, academic_term, applicant_id having count(*) > 1) 
+       ) 
+   WHERE academic_year = '{year}' AND academic_term = '{term}' 
+   ORDER BY academic_year, academic_term, applicant_id;`
     
-    Note 1: The AND in the last WHERE clause in the above query excludes the rows with duplicate 
-    application_id values (refer to the note in the previous step). In this situation, the application_id
-    of the duplicate rows in the applicants file end up with null values in the admits file. You can
-    confirm this by running the following query:
+       Note 1: The AND in the last WHERE clause in the above query excludes the rows with duplicate 
+       application_id values (refer to the note in the previous step). In this situation, the application_id
+       of the duplicate rows in the applicants file end up with null values in the admits file. You can
+       confirm this by running the following query:
 
-    `with temp as (
-    select a.academic_year, a.academic_term, a.applicant_id as applicant_applicant_id, b.applicant_id as admit_applicant_id
-    from datamorph_demo.applicant_raw_delta a
-    left outer join datamorph_demo.admission_raw_delta b
-    on a.applicant_id = b.applicant_id
-    and a.academic_year = b.academic_year
-    and a.academic_term = b.academic_term
-    ) select * from temp where admit_applicant_id is null;`
+   `WITH temp as ( 
+       SELECT a.academic_year, a.academic_term, a.applicant_id as applicant_applicant_id, b.applicant_id as admit_applicant_id 
+       FROM datamorph_demo.applicant_raw_delta a 
+       LEFT OUTER JOIN datamorph_demo.admission_raw_delta b 
+       ON a.applicant_id = b.applicant_id 
+       AND a.academic_year = b.academic_year 
+       AND a.academic_term = b.academic_term 
+   ) select * from temp where admit_applicant_id is null;`
 
-    Note 2: {year} = 2023, 2022, 2021, 2020 or 2019 and {term} = 2
+       Note 2: {year} = 2023, 2022, 2021, 2020 or 2019 and {term} = 2
 
 6. Place the indexed_applicants.csv file in ~/plaitpy/templates/data directory. This file will be leveraged by the 
 yaml template in the next step.
